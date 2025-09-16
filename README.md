@@ -26,13 +26,13 @@ A secure, modern Electronic Health Records (EHR) integration dashboard built wit
 - **Styling:** Tailwind CSS with custom components
 - **API Client:** Axios with FHIR client wrapper
 - **Testing:** Jest + React Testing Library
-- **Authentication:** OAuth 2.0 with Practice Fusion FHIR API
+- **Authentication:** OAuth 2.0 with FHIR R4 APIs (Oracle Health, Practice Fusion)
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 18+ and npm
-- Practice Fusion developer account (recommended) or test credentials
+- FHIR API credentials (optional - demo mode available)
 
 ### Installation
 
@@ -52,12 +52,16 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### First-Time Setup
 
-1. **Configure EHR Connection:**
-   - Enter your EHR system base URL (e.g., `https://api.practicefusion.com/fhir/r4`)
-   - Provide your OAuth client ID and secret
-   - Test the connection
+1. **Choose Your Mode:**
+   - **Demo Mode:** Click "Switch to Demo Mode" for instant access with mock data
+   - **Live API:** Use Oracle Health sandbox (no credentials needed)
 
-2. **Start Managing Healthcare Data:**
+2. **For Live API Testing:**
+   - Base URL: `https://fhir-open.cerner.com/r4/ec2458f2-1e24-41c8-b71b-0e701af7583d`
+   - Leave credential fields empty
+   - Click "Test Connection" then "Connect"
+
+3. **Start Managing Healthcare Data:**
    - Navigate through the dashboard tabs
    - Search and manage patients
    - Schedule appointments
@@ -68,6 +72,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 - **[API Discovery Document](./API_Discovery_Document.md)** - Complete analysis of EHR API capabilities
 - **[Implementation Guide](./Implementation_Guide.md)** - Detailed technical implementation guide
+- **[Live API Testing Guide](./LIVE_API_TESTING_GUIDE.md)** - Instructions for testing with real FHIR APIs
 - **[Postman Collection](./EHR_Dashboard_API_Collection.postman_collection.json)** - API testing collection
 
 ## 🧪 Testing
