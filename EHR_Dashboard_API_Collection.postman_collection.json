@@ -1,0 +1,921 @@
+{
+  "info": {
+    "name": "EHR Dashboard API Collection",
+    "description": "Complete API collection for EHR Integration Dashboard with Practice Fusion FHIR endpoints",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://api.practicefusion.com/fhir/r4",
+      "type": "string"
+    },
+    {
+      "key": "client_id",
+      "value": "your_client_id",
+      "type": "string"
+    },
+    {
+      "key": "client_secret",
+      "value": "your_client_secret",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "your_access_token",
+      "type": "string"
+    },
+    {
+      "key": "patient_id",
+      "value": "patient-123",
+      "type": "string"
+    },
+    {
+      "key": "appointment_id",
+      "value": "appointment-123",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Get Access Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "client_credentials"
+                },
+                {
+                  "key": "client_id",
+                  "value": "{{client_id}}"
+                },
+                {
+                  "key": "client_secret",
+                  "value": "{{client_secret}}"
+                },
+                {
+                  "key": "scope",
+                  "value": "patient/*.read patient/*.write"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/oauth/token",
+              "host": ["{{base_url}}"],
+              "path": ["oauth", "token"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Patient Management",
+      "item": [
+        {
+          "name": "Search Patients",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/fhir+json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/Patient?_count=20",
+              "host": ["{{base_url}}"],
+              "path": ["Patient"],
+              "query": [
+                {
+                  "key": "_count",
+                  "value": "20"
+                },
+                {
+                  "key": "name",
+                  "value": "John",
+                  "disabled": true
+                },
+                {
+                  "key": "identifier",
+                  "value": "patient-123",
+                  "disabled": true
+                },
+                {
+                  "key": "birthdate",
+                  "value": "1990-01-01",
+                  "disabled": true
+                },
+                {
+                  "key": "gender",
+                  "value": "male",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/Patient?_count=20",
+                  "host": ["{{base_url}}"],
+                  "path": ["Patient"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"resourceType\": \"Bundle\",\n  \"type\": \"searchset\",\n  \"total\": 1,\n  \"entry\": [\n    {\n      \"resource\": {\n        \"resourceType\": \"Patient\",\n        \"id\": \"patient-123\",\n        \"name\": [\n          {\n            \"use\": \"official\",\n            \"given\": [\"John\"],\n            \"family\": \"Doe\"\n          }\n        ],\n        \"birthDate\": \"1990-01-01\",\n        \"gender\": \"male\"\n      }\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Patient by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/fhir+json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/Patient/{{patient_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["Patient", "{{patient_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Patient",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/fhir+json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/fhir+json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resourceType\": \"Patient\",\n  \"name\": [\n    {\n      \"use\": \"official\",\n      \"given\": [\"John\", \"Michael\"],\n      \"family\": \"Doe\"\n    }\n  ],\n  \"birthDate\": \"1990-01-01\",\n  \"gender\": \"male\",\n  \"telecom\": [\n    {\n      \"system\": \"phone\",\n      \"value\": \"+1-555-0123\",\n      \"use\": \"home\"\n    },\n    {\n      \"system\": \"email\",\n      \"value\": \"john.doe@email.com\",\n      \"use\": \"home\"\n    }\n  ],\n  \"address\": [\n    {\n      \"use\": \"home\",\n      \"line\": [\"123 Main Street\"],\n      \"city\": \"New York\",\n      \"state\": \"NY\",\n      \"postalCode\": \"10001\",\n      \"country\": \"US\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/Patient",
+              "host": ["{{base_url}}"],
+              "path": ["Patient"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Patient",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/fhir+json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/fhir+json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resourceType\": \"Patient\",\n  \"id\": \"{{patient_id}}\",\n  \"name\": [\n    {\n      \"use\": \"official\",\n      \"given\": [\"John\", \"Michael\"],\n      \"family\": \"Smith\"\n    }\n  ],\n  \"birthDate\": \"1990-01-01\",\n  \"gender\": \"male\",\n  \"telecom\": [\n    {\n      \"system\": \"phone\",\n      \"value\": \"+1-555-0456\",\n      \"use\": \"home\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/Patient/{{patient_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["Patient", "{{patient_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Patient",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/Patient/{{patient_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["Patient", "{{patient_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Appointment Management",
+      "item": [
+        {
+          "name": "Search Appointments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/fhir+json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/Appointment?date=2024-01-01&_count=20",
+              "host": ["{{base_url}}"],
+              "path": ["Appointment"],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "_count",
+                  "value": "20"
+                },
+                {
+                  "key": "patient",
+                  "value": "{{patient_id}}",
+                  "disabled": true
+                },
+                {
+                  "key": "practitioner",
+                  "value": "practitioner-123",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "booked",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Appointment by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/fhir+json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/Appointment/{{appointment_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["Appointment", "{{appointment_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Appointment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/fhir+json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/fhir+json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resourceType\": \"Appointment\",\n  \"status\": \"booked\",\n  \"start\": \"2024-01-15T10:00:00Z\",\n  \"end\": \"2024-01-15T11:00:00Z\",\n  \"description\": \"Follow-up appointment\",\n  \"participant\": [\n    {\n      \"actor\": {\n        \"reference\": \"Patient/{{patient_id}}\",\n        \"display\": \"John Doe\"\n      },\n      \"required\": \"required\",\n      \"status\": \"accepted\"\n    },\n    {\n      \"actor\": {\n        \"reference\": \"Practitioner/practitioner-123\",\n        \"display\": \"Dr. Smith\"\n      },\n      \"required\": \"required\",\n      \"status\": \"accepted\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/Appointment",
+              "host": ["{{base_url}}"],
+              "path": ["Appointment"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Appointment",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/fhir+json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/fhir+json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resourceType\": \"Appointment\",\n  \"id\": \"{{appointment_id}}\",\n  \"status\": \"arrived\",\n  \"start\": \"2024-01-15T10:00:00Z\",\n  \"end\": \"2024-01-15T11:00:00Z\",\n  \"description\": \"Follow-up appointment - Updated\",\n  \"participant\": [\n    {\n      \"actor\": {\n        \"reference\": \"Patient/{{patient_id}}\",\n        \"display\": \"John Doe\"\n      },\n      \"required\": \"required\",\n      \"status\": \"accepted\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/Appointment/{{appointment_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["Appointment", "{{appointment_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Appointment",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/Appointment/{{appointment_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["Appointment", "{{appointment_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Clinical Operations",
+      "item": [
+        {
+          "name": "Observations",
+          "item": [
+            {
+              "name": "Get Patient Observations",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/fhir+json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/Observation?patient={{patient_id}}&_count=50",
+                  "host": ["{{base_url}}"],
+                  "path": ["Observation"],
+                  "query": [
+                    {
+                      "key": "patient",
+                      "value": "{{patient_id}}"
+                    },
+                    {
+                      "key": "_count",
+                      "value": "50"
+                    },
+                    {
+                      "key": "category",
+                      "value": "vital-signs",
+                      "disabled": true
+                    },
+                    {
+                      "key": "code",
+                      "value": "85354-9",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Observation",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/fhir+json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/fhir+json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"resourceType\": \"Observation\",\n  \"status\": \"final\",\n  \"category\": [\n    {\n      \"coding\": [\n        {\n          \"system\": \"http://terminology.hl7.org/CodeSystem/observation-category\",\n          \"code\": \"vital-signs\",\n          \"display\": \"Vital Signs\"\n        }\n      ]\n    }\n  ],\n  \"code\": {\n    \"coding\": [\n      {\n        \"system\": \"http://loinc.org\",\n        \"code\": \"85354-9\",\n        \"display\": \"Blood pressure panel with all children optional\"\n      }\n    ]\n  },\n  \"subject\": {\n    \"reference\": \"Patient/{{patient_id}}\"\n  },\n  \"effectiveDateTime\": \"2024-01-15T10:30:00Z\",\n  \"valueQuantity\": {\n    \"value\": 120,\n    \"unit\": \"mmHg\",\n    \"system\": \"http://unitsofmeasure.org\",\n    \"code\": \"mm[Hg]\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/Observation",
+                  "host": ["{{base_url}}"],
+                  "path": ["Observation"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Conditions",
+          "item": [
+            {
+              "name": "Get Patient Conditions",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/fhir+json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/Condition?patient={{patient_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["Condition"],
+                  "query": [
+                    {
+                      "key": "patient",
+                      "value": "{{patient_id}}"
+                    },
+                    {
+                      "key": "clinical-status",
+                      "value": "active",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Condition",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/fhir+json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/fhir+json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"resourceType\": \"Condition\",\n  \"clinicalStatus\": {\n    \"coding\": [\n      {\n        \"system\": \"http://terminology.hl7.org/CodeSystem/condition-clinical\",\n        \"code\": \"active\"\n      }\n    ]\n  },\n  \"verificationStatus\": {\n    \"coding\": [\n      {\n        \"system\": \"http://terminology.hl7.org/CodeSystem/condition-ver-status\",\n        \"code\": \"confirmed\"\n      }\n    ]\n  },\n  \"code\": {\n    \"coding\": [\n      {\n        \"system\": \"http://snomed.info/sct\",\n        \"code\": \"38341003\",\n        \"display\": \"Hypertensive disorder\"\n      }\n    ]\n  },\n  \"subject\": {\n    \"reference\": \"Patient/{{patient_id}}\"\n  },\n  \"onsetDateTime\": \"2024-01-01\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/Condition",
+                  "host": ["{{base_url}}"],
+                  "path": ["Condition"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Medications",
+          "item": [
+            {
+              "name": "Get Patient Medications",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/fhir+json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/MedicationRequest?patient={{patient_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["MedicationRequest"],
+                  "query": [
+                    {
+                      "key": "patient",
+                      "value": "{{patient_id}}"
+                    },
+                    {
+                      "key": "status",
+                      "value": "active",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Medication Request",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/fhir+json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/fhir+json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"resourceType\": \"MedicationRequest\",\n  \"status\": \"active\",\n  \"intent\": \"order\",\n  \"medicationCodeableConcept\": {\n    \"coding\": [\n      {\n        \"system\": \"http://www.nlm.nih.gov/research/umls/rxnorm\",\n        \"code\": \"197361\",\n        \"display\": \"Lisinopril 10 MG Oral Tablet\"\n      }\n    ]\n  },\n  \"subject\": {\n    \"reference\": \"Patient/{{patient_id}}\"\n  },\n  \"authoredOn\": \"2024-01-15\",\n  \"dosageInstruction\": [\n    {\n      \"text\": \"Take one tablet daily\",\n      \"timing\": {\n        \"repeat\": {\n          \"frequency\": 1,\n          \"period\": 1,\n          \"periodUnit\": \"d\"\n        }\n      }\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/MedicationRequest",
+                  "host": ["{{base_url}}"],
+                  "path": ["MedicationRequest"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Allergies",
+          "item": [
+            {
+              "name": "Get Patient Allergies",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/fhir+json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/AllergyIntolerance?patient={{patient_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["AllergyIntolerance"],
+                  "query": [
+                    {
+                      "key": "patient",
+                      "value": "{{patient_id}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Allergy",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/fhir+json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/fhir+json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"resourceType\": \"AllergyIntolerance\",\n  \"clinicalStatus\": {\n    \"coding\": [\n      {\n        \"system\": \"http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical\",\n        \"code\": \"active\"\n      }\n    ]\n  },\n  \"verificationStatus\": {\n    \"coding\": [\n      {\n        \"system\": \"http://terminology.hl7.org/CodeSystem/allergyintolerance-verification\",\n        \"code\": \"confirmed\"\n      }\n    ]\n  },\n  \"code\": {\n    \"coding\": [\n      {\n        \"system\": \"http://snomed.info/sct\",\n        \"code\": \"387406002\",\n        \"display\": \"Sulfonamide (substance)\"\n      }\n    ]\n  },\n  \"patient\": {\n    \"reference\": \"Patient/{{patient_id}}\"\n  },\n  \"criticality\": \"high\",\n  \"reaction\": [\n    {\n      \"manifestation\": [\n        {\n          \"coding\": [\n            {\n              \"system\": \"http://snomed.info/sct\",\n              \"code\": \"271807003\",\n              \"display\": \"Skin rash\"\n            }\n          ]\n        }\n      ],\n      \"severity\": \"moderate\"\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/AllergyIntolerance",
+                  "host": ["{{base_url}}"],
+                  "path": ["AllergyIntolerance"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Diagnostic Reports",
+          "item": [
+            {
+              "name": "Get Patient Diagnostic Reports",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/fhir+json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/DiagnosticReport?patient={{patient_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["DiagnosticReport"],
+                  "query": [
+                    {
+                      "key": "patient",
+                      "value": "{{patient_id}}"
+                    },
+                    {
+                      "key": "status",
+                      "value": "final",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Immunizations",
+          "item": [
+            {
+              "name": "Get Patient Immunizations",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/fhir+json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/Immunization?patient={{patient_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["Immunization"],
+                  "query": [
+                    {
+                      "key": "patient",
+                      "value": "{{patient_id}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Billing & Administration",
+      "item": [
+        {
+          "name": "Coverage",
+          "item": [
+            {
+              "name": "Get Patient Coverage",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/fhir+json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/Coverage?patient={{patient_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["Coverage"],
+                  "query": [
+                    {
+                      "key": "patient",
+                      "value": "{{patient_id}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Claims",
+          "item": [
+            {
+              "name": "Get Patient Claims",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/fhir+json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/Claim?patient={{patient_id}}",
+                  "host": ["{{base_url}}"],
+                  "path": ["Claim"],
+                  "query": [
+                    {
+                      "key": "patient",
+                      "value": "{{patient_id}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Practitioners",
+          "item": [
+            {
+              "name": "Search Practitioners",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/fhir+json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/Practitioner?_count=50",
+                  "host": ["{{base_url}}"],
+                  "path": ["Practitioner"],
+                  "query": [
+                    {
+                      "key": "_count",
+                      "value": "50"
+                    },
+                    {
+                      "key": "name",
+                      "value": "Smith",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Error Scenarios",
+      "item": [
+        {
+          "name": "Invalid Patient ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/fhir+json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/Patient/invalid-patient-id",
+              "host": ["{{base_url}}"],
+              "path": ["Patient", "invalid-patient-id"]
+            }
+          },
+          "response": [
+            {
+              "name": "404 Not Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/Patient/invalid-patient-id",
+                  "host": ["{{base_url}}"],
+                  "path": ["Patient", "invalid-patient-id"]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"not-found\",\n      \"details\": {\n        \"text\": \"Resource not found\"\n      }\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Unauthorized Request",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/fhir+json"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "invalid_token",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/Patient",
+              "host": ["{{base_url}}"],
+              "path": ["Patient"]
+            }
+          },
+          "response": [
+            {
+              "name": "401 Unauthorized",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/Patient",
+                  "host": ["{{base_url}}"],
+                  "path": ["Patient"]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"error\": \"invalid_token\",\n  \"error_description\": \"The access token provided is expired, revoked, malformed, or invalid for other reasons.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Invalid Request Body",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/fhir+json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/fhir+json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resourceType\": \"Patient\",\n  \"birthDate\": \"invalid-date\",\n  \"gender\": \"invalid-gender\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/Patient",
+              "host": ["{{base_url}}"],
+              "path": ["Patient"]
+            }
+          },
+          "response": [
+            {
+              "name": "422 Validation Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/Patient",
+                  "host": ["{{base_url}}"],
+                  "path": ["Patient"]
+                }
+              },
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"resourceType\": \"OperationOutcome\",\n  \"issue\": [\n    {\n      \"severity\": \"error\",\n      \"code\": \"value\",\n      \"details\": {\n        \"text\": \"Invalid birth date format\"\n      },\n      \"expression\": [\"Patient.birthDate\"]\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
