@@ -214,7 +214,7 @@ describe('validatePatient', () => {
         family: 'Doe'
       }],
       birthDate: '1990-01-01',
-      gender: 'invalid-gender' as any
+      gender: 'invalid-gender' as 'male' | 'female' | 'other' | 'unknown'
     };
 
     const result = validatePatient(patient);

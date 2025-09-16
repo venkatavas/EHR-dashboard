@@ -92,37 +92,29 @@ export function validatePatient(patient: Partial<Patient>): ValidationResult {
   };
 }
 
-export function validateSearchParams(params: Record<string, any>): ValidationResult {
+export function validateSearchParams(params: Record<string, unknown>): ValidationResult {
   const errors: ValidationError[] = [];
 
   // Date validation
-  if (params.date && !isValidDate(params.date)) {
+  if (params.date && typeof params.date === 'string' && !isValidDate(params.date)) {
     errors.push({ field: 'date', message: 'Please enter a valid date' });
   }
 
-  if (params.birthdate && !isValidDate(params.birthdate)) {
+  if (params.birthdate && typeof params.birthdate === 'string' && !isValidDate(params.birthdate)) {
     errors.push({ field: 'birthdate', message: 'Please enter a valid birth date' });
   }
 
   // Count validation
-  if (params._count !== undefined) {
-    const count = parseInt(params._count);
-    if (isNaN(count) || count < 1 || count > 1000) {
-      errors.push({
-        field: '_count',
-        message: 'Count must be a number between 1 and 1000'
-      });
+  if (params._count !== undefined && params._count !== null) {
+    if (typeof params._count !== 'number' || params._count < 1 || params._count > 100) {
+      errors.push({ field: '_count', message: 'Count must be between 1 and 100' });
     }
   }
 
   // Offset validation
-  if (params._offset !== undefined) {
-    const offset = parseInt(params._offset);
-    if (isNaN(offset) || offset < 0) {
-      errors.push({
-        field: '_offset',
-        message: 'Offset must be a non-negative number'
-      });
+  if (params._offset !== undefined && params._offset !== null) {
+    if (typeof params._offset !== 'number' || params._offset < 0) {
+      errors.push({ field: '_offset', message: 'Offset must be 0 or greater' });
     }
   }
 

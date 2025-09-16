@@ -3,7 +3,7 @@ export class APIError extends Error {
     message: string,
     public status?: number,
     public code?: string,
-    public details?: any
+    public details?: unknown
   ) {
     super(message);
     this.name = 'APIError';
@@ -14,7 +14,7 @@ export class ValidationError extends Error {
   constructor(
     message: string,
     public field?: string,
-    public details?: any
+    public details?: unknown
   ) {
     super(message);
     this.name = 'ValidationError';
@@ -35,18 +35,37 @@ export class AuthenticationError extends Error {
   }
 }
 
-export function handleAPIError(error: any): APIError {
+export function handleAPIError(error: unknown): APIError {
   if (error instanceof APIError) {
     return error;
   }
 
+  // Type guard for axios errors
+  const axiosError = error as {
+    response?: {
+      status: number;
+      data?: {
+        resourceType?: string;
+        issue?: Array<{
+          details?: { text?: string };
+          diagnostics?: string;
+          code?: string;
+        }>;
+        error?: string;
+        error_description?: string;
+      };
+    };
+    request?: unknown;
+    message?: string;
+  };
+
   // Handle Axios errors
-  if (error?.response) {
-    const status = error.response.status;
-    const data = error.response.data;
+  if (axiosError?.response) {
+    const status = axiosError.response.status;
+    const data = axiosError.response.data;
 
     // FHIR OperationOutcome handling
-    if (data?.resourceType === 'OperationOutcome' && data.issue?.length > 0) {
+    if (data?.resourceType === 'OperationOutcome' && data.issue && data.issue.length > 0) {
       const issue = data.issue[0];
       return new APIError(
         issue.details?.text || issue.diagnostics || 'FHIR operation failed',
@@ -87,13 +106,13 @@ export function handleAPIError(error: any): APIError {
       case 503:
         return new APIError('Service Unavailable: EHR system temporarily unavailable', status);
       default:
-        return new APIError(`HTTP ${status}: ${error.response.statusText || 'Unknown error'}`, status);
+        return new APIError(`HTTP ${status}: ${axiosError.response?.data || 'Unknown error'}`, status);
     }
   }
 
   // Handle network errors
-  if (error?.request) {
-    return new ConnectionError('Network Error: Unable to connect to EHR system', error);
+  if (axiosError?.request) {
+    return new ConnectionError('Network error: Unable to connect to EHR system', error as Error);
   }
 
   // Handle other errors
@@ -104,26 +123,26 @@ export function handleAPIError(error: any): APIError {
   return new APIError('An unknown error occurred');
 }
 
-export function getErrorMessage(error: any): string {
+export function getErrorMessage(error: unknown): string {
   if (error instanceof APIError || error instanceof ValidationError || error instanceof ConnectionError) {
     return error.message;
   }
 
-  if (error?.message) {
+  if (error instanceof Error) {
     return error.message;
   }
 
   return 'An unexpected error occurred';
 }
 
-export function getErrorCode(error: any): string | undefined {
+export function getErrorCode(error: unknown): string | undefined {
   if (error instanceof APIError) {
     return error.code;
   }
   return undefined;
 }
 
-export function isRetryableError(error: any): boolean {
+export function isRetryableError(error: unknown): boolean {
   if (error instanceof ConnectionError) {
     return true;
   }
@@ -136,13 +155,21 @@ export function isRetryableError(error: any): boolean {
   return false;
 }
 
-export function logError(error: any, context?: string) {
+export function logError(error: unknown, context?: string) {
+  const errorObj = error as {
+    name?: string;
+    message?: string;
+    status?: number;
+    code?: string;
+    stack?: string;
+  };
+  
   console.error(`Error${context ? ` in ${context}` : ''}:`, {
-    name: error.name,
-    message: error.message,
-    status: error.status,
-    code: error.code,
-    stack: error.stack,
+    name: errorObj.name,
+    message: errorObj.message,
+    status: errorObj.status,
+    code: errorObj.code,
+    stack: errorObj.stack,
     timestamp: new Date().toISOString(),
   });
 }
@@ -155,7 +182,7 @@ export function createErrorBoundary() {
       return { hasError: true };
     },
 
-    componentDidCatch(error: Error, errorInfo: any) {
+    componentDidCatch(error: Error, errorInfo: { componentStack: string }) {
       logError(error, 'React Component');
       console.error('Error Info:', errorInfo);
     }
@@ -163,11 +190,11 @@ export function createErrorBoundary() {
 }
 
 // Async error handler wrapper
-export function withErrorHandling<T extends (...args: any[]) => Promise<any>>(
+export function withErrorHandling<T extends (...args: unknown[]) => Promise<unknown>>(
   fn: T,
   context?: string
 ): T {
-  return (async (...args: any[]) => {
+  return (async (...args: Parameters<T>) => {
     try {
       return await fn(...args);
     } catch (error) {

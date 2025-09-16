@@ -27,7 +27,7 @@ describe('FHIRClient', () => {
         request: { use: jest.fn() },
         response: { use: jest.fn() }
       }
-    } as any);
+    } as unknown as jest.Mocked<typeof axios>);
 
     client = new FHIRClient(config);
   });

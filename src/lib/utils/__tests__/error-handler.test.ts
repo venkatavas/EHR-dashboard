@@ -123,7 +123,7 @@ describe('handleAPIError', () => {
 
     const result = handleAPIError(axiosError);
     expect(result).toBeInstanceOf(ConnectionError);
-    expect(result.message).toContain('Network Error');
+    expect(result.message).toContain('Network error: Unable to connect to EHR system');
   });
 
   it('should handle generic errors', () => {
@@ -275,7 +275,6 @@ describe('RateLimiter', () => {
     const maxRequests = 1;
     const windowMs = 1000;
 
-    const startTime = Date.now();
     rateLimiter.isAllowed(key, maxRequests, windowMs);
 
     const retryAfter = rateLimiter.getRetryAfter(key, maxRequests, windowMs);

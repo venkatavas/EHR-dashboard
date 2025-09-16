@@ -1,5 +1,40 @@
-// Using any for FHIR types to avoid complex import issues
-// In production, would use proper @types/fhir package
+// Using proper TypeScript types for FHIR resources
+// Simplified interfaces for EHR Dashboard
+
+// Common FHIR types
+export interface CodeableConcept {
+  coding?: Array<{
+    system?: string;
+    code?: string;
+    display?: string;
+  }>;
+  text?: string;
+}
+
+export interface Reference {
+  reference?: string;
+  display?: string;
+}
+
+export interface Period {
+  start?: string;
+  end?: string;
+}
+
+export interface HumanName {
+  use?: 'usual' | 'official' | 'temp' | 'nickname' | 'anonymous' | 'old' | 'maiden';
+  text?: string;
+  family?: string;
+  given?: string[];
+  prefix?: string[];
+  suffix?: string[];
+}
+
+export interface ContactPoint {
+  system?: string;
+  value?: string;
+  use?: string;
+}
 
 export interface EHRConfig {
   baseUrl: string;
@@ -45,18 +80,10 @@ export interface Patient {
   resourceType: 'Patient';
   id?: string;
   active?: boolean;
-  name?: Array<{
-    use?: string;
-    given?: string[];
-    family?: string;
-  }>;
+  name?: Array<HumanName>;
   birthDate?: string;
   gender?: 'male' | 'female' | 'other' | 'unknown';
-  telecom?: Array<{
-    system?: string;
-    value?: string;
-    use?: string;
-  }>;
+  telecom?: Array<ContactPoint>;
   address?: Array<{
     use?: string;
     line?: string[];
@@ -88,14 +115,9 @@ export interface Observation {
   resourceType: 'Observation';
   id?: string;
   status?: string;
-  category?: Array<any>;
-  code?: {
-    coding?: Array<any>;
-    text?: string;
-  };
-  subject?: {
-    reference?: string;
-  };
+  category?: Array<CodeableConcept>;
+  code?: CodeableConcept;
+  subject?: Reference;
   effectiveDateTime?: string;
   valueQuantity?: {
     value?: number;
@@ -103,16 +125,22 @@ export interface Observation {
     system?: string;
     code?: string;
   };
-  component?: Array<any>;
+  component?: Array<{
+    code?: CodeableConcept;
+    valueQuantity?: {
+      value?: number;
+      unit?: string;
+    };
+  }>;
 }
 
 export interface Condition {
   resourceType: 'Condition';
   id?: string;
-  clinicalStatus?: any;
-  verificationStatus?: any;
-  code?: any;
-  subject?: any;
+  clinicalStatus?: CodeableConcept;
+  verificationStatus?: CodeableConcept;
+  code?: CodeableConcept;
+  subject?: Reference;
   onsetDateTime?: string;
 }
 
@@ -121,78 +149,100 @@ export interface MedicationRequest {
   id?: string;
   status?: string;
   intent?: string;
-  medicationCodeableConcept?: any;
-  subject?: any;
+  medicationCodeableConcept?: CodeableConcept;
+  subject?: Reference;
   authoredOn?: string;
-  dosageInstruction?: Array<any>;
+  dosageInstruction?: Array<{
+    text?: string;
+    timing?: {
+      repeat?: {
+        frequency?: number;
+        period?: number;
+        periodUnit?: string;
+      };
+    };
+    route?: CodeableConcept;
+  }>;
 }
 
 export interface DiagnosticReport {
   resourceType: 'DiagnosticReport';
   id?: string;
   status?: string;
-  code?: any;
-  subject?: any;
+  code?: CodeableConcept;
+  subject?: Reference;
   effectiveDateTime?: string;
-  result?: Array<any>;
+  result?: Array<Reference>;
 }
 
 export interface Encounter {
   resourceType: 'Encounter';
   id?: string;
   status?: string;
-  class?: any;
-  subject?: any;
-  period?: any;
+  class?: CodeableConcept;
+  subject?: Reference;
+  period?: Period;
 }
 
 export interface AllergyIntolerance {
   resourceType: 'AllergyIntolerance';
   id?: string;
-  clinicalStatus?: any;
-  verificationStatus?: any;
-  code?: any;
-  patient?: any;
+  clinicalStatus?: CodeableConcept;
+  verificationStatus?: CodeableConcept;
+  code?: CodeableConcept;
+  patient?: Reference;
   criticality?: string;
-  reaction?: Array<any>;
+  reaction?: Array<{
+    substance?: CodeableConcept;
+    manifestation?: Array<CodeableConcept>;
+    severity?: string;
+  }>;
 }
 
 export interface Immunization {
   resourceType: 'Immunization';
   id?: string;
   status?: string;
-  vaccineCode?: any;
-  patient?: any;
+  vaccineCode?: CodeableConcept;
+  patient?: Reference;
   occurrenceDateTime?: string;
   lotNumber?: string;
-  route?: any;
-  site?: any;
+  route?: CodeableConcept;
+  site?: CodeableConcept;
 }
 
 export interface Practitioner {
   resourceType: 'Practitioner';
   id?: string;
   active?: boolean;
-  name?: Array<any>;
-  telecom?: Array<any>;
-  qualification?: Array<any>;
+  name?: Array<HumanName>;
+  telecom?: Array<ContactPoint>;
+  qualification?: Array<{
+    code?: CodeableConcept;
+    period?: Period;
+    issuer?: Reference;
+  }>;
 }
 
 export interface Coverage {
   resourceType: 'Coverage';
   id?: string;
   status?: string;
-  beneficiary?: any;
-  payor?: Array<any>;
-  class?: Array<any>;
+  beneficiary?: Reference;
+  payor?: Array<Reference>;
+  class?: Array<{
+    type?: CodeableConcept;
+    value?: string;
+    name?: string;
+  }>;
 }
 
 export interface Claim {
   resourceType: 'Claim';
   id?: string;
   status?: string;
-  type?: any;
-  patient?: any;
+  type?: CodeableConcept;
+  patient?: Reference;
   created?: string;
   total?: {
     value?: number;

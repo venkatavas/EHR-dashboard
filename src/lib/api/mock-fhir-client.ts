@@ -9,7 +9,8 @@ import type {
   Immunization,
   Practitioner,
   Coverage,
-  Claim
+  Claim,
+  DiagnosticReport
 } from '@/lib/types/fhir';
 import {
   mockPatients,
@@ -154,7 +155,7 @@ export class MockFHIRClient {
 
       if (params.patient) {
         filteredAppointments = filteredAppointments.filter(apt =>
-          apt.participant?.some((p: any) => p.actor?.reference?.includes(params.patient!))
+          apt.participant?.some((p: { actor?: { reference?: string } }) => p.actor?.reference?.includes(params.patient!))
         );
       }
 
@@ -327,14 +328,14 @@ export class MockFHIRClient {
     }
   }
 
-  async getDiagnosticReports(patientId: string): Promise<APIResponse<any[]>> {
+  async getDiagnosticReports(patientId: string): Promise<APIResponse<DiagnosticReport[]>> {
     await this.delay();
 
     try {
       // Mock diagnostic reports
       const reports = [
         {
-          resourceType: 'DiagnosticReport',
+          resourceType: 'DiagnosticReport' as const,
           id: 'report-001',
           status: 'final',
           code: {
